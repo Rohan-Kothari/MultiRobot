@@ -53,8 +53,15 @@ public:
         start.h = sqrt((m-p)*(m-p) + (n-q)*(n-q));
         start.f = start.g+start.h ;
     }
-
-
+     // Clear all the variables for replanning
+     void clear ()
+     {
+        open_list.clear();
+        closed_list.clear();
+        goalReached = 0 ;
+      } 
+     
+      // set goal and target position
      void setTarget (int m , int n , int p,int q)
     {
         start.x = m;
@@ -66,7 +73,7 @@ public:
         start.h = sqrt((m-p)*(m-p) + (n-q)*(n-q));
         start.f = start.g+start.h ;
     }
-
+      //using occupancy grid generate 2D map of nodes    
     void build_map(std::vector<std::vector<int> > a)
     {
 
@@ -85,10 +92,11 @@ public:
             }
             graph.push_back(t);
         }
+        std::cout << "cHECKING " << graph[4][10].isEmpty <<std::endl;
     }
 
 
-
+   // Gives back neighbours for A* currently using 4 connected 
     void getNeighbours(node*t,std::vector<node*> & neighbours )
     {
 
@@ -119,7 +127,8 @@ public:
              if (graph[tx+m][ty+n].isEmpty == 0)
              {
                  neighbours. push_back(&graph[tx+m][ty+n]);
-                 std::cout << " neighbour node returned : "<<tx<<"  "<<ty<<" = " << graph[tx+m][ty+n].x  << "  y : " << graph[tx+m][ty+n].y << "Empty ?" <<graph[tx+m][ty+n].isEmpty <<std::endl;
+                 std::cout << " tx+m : "<<tx+m<<"  ty+n "<<ty+n<<std::endl;
+                 std::cout << " neighbour node returned : "<<tx<<"  "<<ty<<" x = " << graph[tx+m][ty+n].x  << "  y : " << graph[tx+m][ty+n].y << "Empty ?" <<graph[tx+m][ty+n].isEmpty <<std::endl;
 
              }
          }
@@ -130,7 +139,8 @@ public:
            {
                if (graph[tx+m][ty+n].isEmpty == 0)
                {neighbours. push_back(&graph[tx+m][ty+n]);
-                std::cout << " neighbour node returned : "<<tx<<"  "<<ty<<" = " << graph[tx+m][ty+n].x  << "  y : " << graph[tx+m][ty+n].y << "Empty ?" <<graph[tx+m][ty+n].isEmpty <<std::endl;
+                   std::cout << " tx+m : "<<tx+m<<"  ty+n "<<ty+n<<std::endl;
+                   std::cout << " neighbour node returned : "<<tx<<"  "<<ty<<" x = " << graph[tx+m][ty+n].x  << "  y : " << graph[tx+m][ty+n].y << "Empty ?" <<graph[tx+m][ty+n].isEmpty <<std::endl;
                }
            }
 
@@ -141,8 +151,9 @@ public:
             {
                 if (graph[tx+m][ty+n].isEmpty == 0)
                 {
-                 neighbours. push_back(&graph[tx+m][ty+n]);
-                 std::cout << " neighbour node returned : "<<tx<<"  "<<ty<<" = " << graph[tx+m][ty+n].x  << "  y : " << graph[tx+m][ty+n].y << "Empty ?" <<graph[tx+m][ty+n].isEmpty <<std::endl;
+                     std::cout << " tx+m : "<<tx+m<<"  ty+n "<<ty+n<<std::endl;
+                    neighbours. push_back(&graph[tx+m][ty+n]);
+                 std::cout << " neighbour node returned : "<<tx<<"  "<<ty<<" x = " << graph[tx+m][ty+n].x  << "  y : " << graph[tx+m][ty+n].y << "Empty ?" <<graph[tx+m][ty+n].isEmpty <<std::endl;
                 }
             }
 
@@ -152,14 +163,15 @@ public:
              {
                  if (graph[tx+m][ty+n].isEmpty == 0)
 
-                 {neighbours. push_back(&graph[tx+m][ty+n]);
-                  std::cout << " neighbour node returned : "<<tx<<"  "<<ty<<" = " << graph[tx+m][ty+n].x  << "  y : " << graph[tx+m][ty+n].y << "Empty ?" <<graph[tx+m][ty+n].isEmpty <<std::endl;
+                 {    std::cout << " tx+m : "<<tx+m<<"  ty+n "<<ty+n<<std::endl;
+                     neighbours. push_back(&graph[tx+m][ty+n]);
+                  std::cout << " neighbour node returned : "<<tx<<"  "<<ty<<" x = " << graph[tx+m][ty+n].x  << "  y : " << graph[tx+m][ty+n].y << "Empty ?" <<graph[tx+m][ty+n].isEmpty <<std::endl;
                  }
              }
 
         return ;
     }
-
+       // shows occupancy grid
     void show()
     {
         for(int p =0; p< graph.size() ;p++)
@@ -173,7 +185,7 @@ public:
         }
 
     }
-
+      // Calculates cost of the neighbours
     void getCost(node *c,std::vector<node*> t)
     {
         for ( int m = 0 ; m < t.size() ; m++)
@@ -183,7 +195,7 @@ public:
             t[m]->f = t[m]->g+ t[m]->h;
         }
     }
-
+    // A* algorithm 
     void start_search()
     {
         open_list.push_back(&start);
@@ -194,7 +206,7 @@ public:
         int mt;
         while( goalReached == 0 )
         {
-           // std::cout<<"number of elements in openlist = "<<open_list.size() <<std::endl;
+           
             fmin = 1000;
             for ( int m = 0 ; m < open_list.size() ; m++)
             {
@@ -207,8 +219,7 @@ public:
             }
             closed_list.push_back(curr);
             std::cout << "--------------------------------------------------------------------"<<std::endl;
-            //std::cout <<  "  node deleted from open list x : " << open_list[mt]->x <<std::endl;
-            //std::cout << "  node deleted from open list y : " << open_list[mt]->y <<std::endl;
+           
 
             std::cout<< "  node x : " << curr->x<< "  node  y : " << curr->y <<std::endl;
             open_list.erase(open_list.begin()+ mt);
@@ -219,8 +230,7 @@ public:
             std::vector<node*> neighbours;
             getNeighbours(curr ,neighbours);
             getCost(curr,neighbours) ;
-            //std::cout<<" cost returned "<<std::endl;
-            ////std::cout << " A.Nodes neighbours " << neighbours.size() <<std::endl;
+            
 
             for(int m = 0 ;  m < open_list.size() ; m++)
             {
@@ -242,7 +252,7 @@ public:
                 }
             }
 
-            //std::cout << "B. Nodes neighbours " << neighbours.size() <<std::endl;
+           
 
             for(int m = 0 ;  m < closed_list.size() ; m++)
             {
@@ -253,61 +263,41 @@ public:
 
                     if(closed_list[m]->y == neighbours[n]->y && closed_list[m]->x == neighbours[n]->x)
                     {
-                        /* if (closed_list[m]->f > neighbours[n]->f)
-                              {
-                                  closed_list.erase(closed_list.begin()+m);
-                              }
-                              else
-                              {
-                                  neighbours.erase(neighbours.begin() + n);
-                              }*/
-
-                        //std::cout <<  " closed node x nei: " << neighbours[n]->x <<std::endl;
-                        //std::cout <<  " closed node y nei: " << neighbours[n]->y<<std::endl;
-                        //std::cout <<  " closed node x clo: " << closed_list[m]->x <<std::endl;
-                        //std::cout <<  " closed node y clo: " <<  closed_list[m]->y<<std::endl;
-                        //std::cout <<  " n before = " <<n<<std::endl;
+                        
                         neighbours.erase(neighbours.begin() + n );
                         n--;
-                        //std::cout <<  " n after= " <<n<<std::endl;
-                        //std::cout<<"xxxxxxxxx GOT HIT  xxxxxxxxx"<<std::endl;
+                        
                     }
 
-                    //std::cout<<"completed a round"<<std::endl;
                 }
             }
 
-            //std::cout<<"remaining neighbours to be added to open list"<<std::endl;
-
+          
             for(int m = 0 ; m < neighbours.size();m++)
             {
-               // std::cout<<" A.neighbours added to open list"<<std::endl;
+               
 
                 next = neighbours[m];
-                //std::cout<<" B.neighbours added to open list"<<std::endl;
+               
 
                 next->parent = curr ;
-               // std::cout<<" C.neighbours added to open list"<<std::endl;
+               
 
                 open_list.push_back(next);
-               // std::cout<<" D.neighbours added to open list"<<std::endl;
-
+               
             }
 
 
 
 
 
-            //std::cout << " Nodes in closed list" << closed_list.size() <<std::endl;
-           // curr = next ;
+           
         }
-        //std::cout << " Nodes in closed list after target reached " << closed_list.size() <<std::endl;
-        //std::cout<<"number of elements in openlist = "<<open_list.size() <<std::endl;
-
+        
         return ;
     }
 
-
+   // Returns the optiamal Path
     void showPath(std::vector <node *> &path)
     {
         node *curr = &graph[goal.x][goal.y];

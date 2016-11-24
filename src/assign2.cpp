@@ -37,7 +37,7 @@ void getWH(FieldComputer& fc, FieldData& data,int& width,int& height,int& rows,i
 }
 void fillGrid(FieldComputer& fc, FieldData& data,vector<vector<int> > &vvi){
   vector< vector<int> >::iterator row;
-    vector<int>::iterator col;
+  vector<int>::iterator col;
     // Get the Robots Data
   // for (row = vvi.begin(); row != vvi.end(); row++) {
  //        for (col = row->begin(); col != row->end(); col++) {
@@ -72,12 +72,12 @@ void fillGrid(FieldComputer& fc, FieldData& data,vector<vector<int> > &vvi){
     }
   }
   for (row = vvi.begin(); row != vvi.end(); row++) {
-        for (col = row->begin(); col != row->end(); col++) {
+    for (col = row->begin(); col != row->end(); col++) {
             // *col = 9;
-            cout<<*col<<" ";
-        }
-        cout<<endl;
+      cout<<*col<<" ";
     }
+    cout<<endl;
+  }
 }
 void printFieldData(FieldComputer& fc, FieldData& data) {
   // Get the Robots Data
@@ -151,137 +151,307 @@ void printFieldData(FieldComputer& fc, FieldData& data) {
 
 int main(int argc, char *argv[])
 {
-   double targetx1,targetx2,targetx3,targetx4,targety1,targety2,targety3,targety4;
-   double robot1x,robot1y,robot2x,robot2y;
+ double targetx1,targetx2,targetx3,targetx4,targety1,targety2,targety3,targety4;
+ double robot1x,robot1y,robot2x,robot2y,robot3x,robot3y;
 
-    cout << "Hello World!" << endl;
+ cout << "Hello World!" << endl;
 
-    tree t (0,0,4,3);
-    cout << "Tree created" << endl;      
-    int idblue = 0 ;
-    int idgreen =2;
-    int idred = 3;
-     
-    
+ tree t (0,0,4,3);
+ cout << "Tree created" << endl;      
+ int idblue = 0 ;
+ int idgreen =2;
+ int idred = 3;
 
 
- // get ocupancy grid 
-  string ip = string(argv[1]);
+
+
+ // get field data 
+ string ip = string(argv[1]);
 
  FieldComputer fc(ip);
  FieldData data = fc.getFieldData();
-  int width, height, rows, cols;
-  // we get width, height and matrix
+ int width, height, rows, cols;
+ 
+  
+ // For 103 box
 
-  //t.show();
+ // Getting position of box and the robot
 
- // get goal positions 
-
-
- vector<int> queryIds;
-    while ( data.entities.size() <6)
-    {
-        std::cout << "Trying to get data from filed" << std::endl;   
+ while ( data.entities.size() <6)
+ {
+  std::cout << "Trying to get data from filed" << std::endl;   
 
 
   
-    data = fc.getFieldData();
-    }
-     for(unsigned i = 0; i < data.entities.size(); i++)
-    {
-    if( data.entities[i].id() == 101 )
-    {
-      targetx1 = int(data.entities[i].x()/56)  ;
-      targety1 = int(data.entities[i].y()/62) + 1;
-         std::cout << "found 101 co-ordinates x : "<< targetx1 << " y : " << targety1 <<std::endl;
+  data = fc.getFieldData();
+}
+for(unsigned i = 0; i < data.entities.size(); i++)
+{
 
-    }
+
+  if( data.entities[i].id() == 103 )
+  {
+    targetx3 = int(data.entities[i].x()/56)  ;
+    targety3 = int(data.entities[i].y()/62) + 2;
+    std::cout << "found 103 co-ordinates x : "<< targetx3 << " y : " << targety3<< std::endl;
+  }
+
+}
+
+for(unsigned i = 0; i < data.robots.size(); i++)
+{
+  if( data.robots[i].id() == 2)
+  {
+    robot1x = int(data.robots[i].x()/56)  ;
+    robot1y = int(data.robots[i].y()/62) ;
+    std::cout << "found robot2 co-ordinates  x :" << robot1x<<"  y :"<< robot1y << std::endl;
+  }
+}
+getWH(fc, data,width,height,rows,cols);
+vector<vector<int> > grid(rows, vector<int>(cols,0));
+// Get occupancy grid data
+fillGrid(fc, data,grid);
+   
+    t.build_map(grid);
+    t.show(); 
+    std::vector<node*> path_list;  
+  
+   // get roobot 5 to comfortable place
+   g2p(ip,5,1,9);
+     
+      // Give start and goal positions
+    t.setTarget(robot1y,robot1x,targety3,targetx3);
+    std::cout << "found 103 co-ordinates x : "<< targetx3 << " y : " << targety3<< std::endl;
+    std::cout << "found robot3 co-ordinates  x :" << robot2x<<"  y :"<< robot2y << std::endl;
+
+
+    // Perform A* search 
+    t.start_search();
+
+
+
+    t.showPath(path_list);
+    // following the path generated
+    for (int m =1 ; m < path_list.size();m++)
+   {    // path is in reverse order. 
+    std::cout<< "Going to given goal " << std::endl;
+
+
+    g2p(ip,2,path_list[path_list.size()-m-1]->y,path_list[path_list.size()-m-1]->x);
+       
+
+
+  }
+  // go to blue region
+  g2p(ip,2,9,1);
+  path_list.clear();
+  t.clear();
+  
+  // for 102 box
+
+
+  while ( data.entities.size() <6)
+  {
+    std::cout << "Trying to get data from filed" << std::endl;   
+
+
+
+    data = fc.getFieldData();
+  }
+  for(unsigned i = 0; i < data.entities.size(); i++)
+  {
+
     if( data.entities[i].id() == 102 )
     {
-      targetx2 = int(data.entities[i].x()/56)  ;
-      targety2 = int(data.entities[i].y()/62) + 1;
+      targetx2 = int(data.entities[i].x()/56) -1 ;
+      targety2 = int(data.entities[i].y()/62) + 2;
       std::cout << "found 102 co-ordinates x : "<< targetx2 << " y : " << targety2 << std::endl;
     }
 
-    if( data.entities[i].id() == 103 )
-    {
-      targetx3 = int(data.entities[i].x()/56)  ;
-      targety3 = int(data.entities[i].y()/62) + 1;
-      std::cout << "found 103 co-ordinates x : "<< targetx3 << " y : " << targety3<< std::endl;
-    }
     
-if( data.entities[i].id() == 112 )
-    {
-      targetx4 = int(data.entities[i].x()/56)  ;
-      targety4 = int(data.entities[i].y()/62) +1;
-      std::cout << "found 112 co-ordinates x : "<< targetx4 << " y : " << targety4<< std::endl;
-     }
+  }
 
-   }
+  for(unsigned i = 0; i < data.robots.size(); i++)
+
+{
+   if( data.robots[i].id() == 3 )
+   {
+    robot2x = int(data.robots[i].x()/56)  ;
+    robot2y = int(data.robots[i].y()/62) ;
+    std::cout << "found robot3 co-ordinates  x :" << robot2x<<"  y :"<< robot2y << std::endl;
+  }
+}
+  
+
+printFieldData(fc, data);
+fillGrid(fc, data,grid);
+std::cout << "building the grid " << std::endl;
+t.build_map(grid);
+
+      
+
+       t.setTarget(robot2y,robot2x,targety2,targetx2); 
+
+
+       t.start_search();
+
+
+
+       t.showPath(path_list);
+       for (int m =1 ; m < path_list.size();m++)
+   {    // path is in reverse.
+    std::cout<< "Going to given goal " << std::endl;
+
+
+    g2p(ip,3,path_list[path_list.size()-m-1]->y,path_list[path_list.size()-m-1]->x);
+       
+
+  }
+  // go to  red  region
+  g2p(ip,3,12,1);
+  path_list.clear();
+  t.clear();
+  
+  // for 101 box
+  while ( data.entities.size() <6)
+  {
+    std::cout << "Trying to get data from filed" << std::endl;   
+
+
+
+    data = fc.getFieldData();
+  }
+  for(unsigned i = 0; i < data.entities.size(); i++)
+  {
+    if( data.entities[i].id() == 101 )
+    {
+      targetx1 = int(data.entities[i].x()/56) + 1  ;
+      targety1 = int(data.entities[i].y()/62) + 2;
+      std::cout << "found 101 co-ordinates x : "<< targetx1 << " y : " << targety1 <<std::endl;
+
+    }
+
+
+  }
+
+  for(unsigned i = 0; i < data.robots.size(); i++)
+  {
+    if( data.robots[i].id() == 5)
+    {
+      robot3x = int(data.robots[i].x()/56)  ;
+      robot3y = int(data.robots[i].y()/62) ;
+      std::cout << "found robot2 co-ordinates  x :" << robot1x<<"  y :"<< robot1y << std::endl;
+    }
+
+    
+
+
+  }
+ 
+  fillGrid(fc, data,grid);
+
+  t.build_map(grid);
+  t.show(); 
+  
+
+
+  t.setTarget(robot3y,robot3x,targety1,targetx1); 
+
+
+  t.start_search();
+
+
+
+  t.showPath(path_list);
+  for (int m =1 ; m < path_list.size();m++)
+   {    // path is in reverse.
+    std::cout<< "Going to given goal " << std::endl;
+
+
+    g2p(ip,5,path_list[path_list.size()-m-1]->y,path_list[path_list.size()-m-1]->x);
+       
+
+
+  }
+  // To reach blue region
+  g2p(ip,5,9,1);
+  path_list.clear();
+  t.clear();
+  // for 112 box
+
+ int flag = 0;
+ while ( flag ==0)
+  {
+    std::cout << "Trying to get data from filed" << std::endl;   
 
     for(unsigned i = 0; i < data.robots.size(); i++)
-    {
-if( data.robots[i].id() == 2)
-    {
-      robot1x = int(data.robots[i].x()/56)  ;
-      robot1y = int(data.robots[i].y()/62) ;
-      std::cout << "found robot2 co-ordinates  x :" << robot1x<<"  y :"<< robot1y << std::endl;
-     }
+  {
 
-     if( data.robots[i].id() == 3 )
-    {
-      robot2x = int(data.robots[i].x()/56)  ;
-      robot2y = int(data.robots[i].y()/62) ;
-      std::cout << "found robot3 co-ordinates  x :" << robot2x<<"  y :"<< robot2y << std::endl;
-     }
-   
+   if( data.robots[i].id() == 3 )
+   { flag =1;  } 
 
-
-
-   }
-     getWH(fc, data,width,height,rows,cols);
-  vector<vector<int> > grid(rows, vector<int>(cols,0));
-  printFieldData(fc, data);
-  fillGrid(fc, data,grid);
- // generate tree
-  t.build_map(grid);
+    data = fc.getFieldData();
+  }
  
-  
- // exexcute step 
-   
+
+ for(unsigned i = 0; i < data.entities.size(); i++)
+  {
 
 
-   t.setTarget(robot2x,robot2y,targetx3,targety3);
-    std::cout << "found 103 co-ordinates x : "<< targetx3 << " y : " << targety3<< std::endl;
+    if( data.entities[i].id() == 112 )
+    {
+      targetx4 = int(data.entities[i].x()/56) +1 ;
+      targety4 = int(data.entities[i].y()/62) +2;
+      std::cout << "found 112 co-ordinates x : "<< targetx4 << " y : " << targety4<< std::endl;
+    }
+
+  }
+
+  for(unsigned i = 0; i < data.robots.size(); i++)
+  {
+
+   if( data.robots[i].id() == 3 )
+   {
+    robot2x = int(data.robots[i].x()/56)  ;
+    robot2y = int(data.robots[i].y()/62) ;
     std::cout << "found robot3 co-ordinates  x :" << robot2x<<"  y :"<< robot2y << std::endl;
-   t.start_search();
- 
-   std::vector<node*> p;
+  }
 
-   t.showPath(p);
+}
 
-   for (int m =0 ; m < p.size();m++)
+
+}
+
+fillGrid(fc, data,grid);
+
+t.build_map(grid);
+t.show(); 
+
+
+t.setTarget(robot2y,robot2x,targety4,targetx4); 
+
+
+t.start_search();
+
+
+
+t.showPath(path_list);
+for (int m =1 ; m < path_list.size();m++)
    {    // path is in reverse.
-        std::cout<< "Going to given goal " << std::endl;
+    std::cout<< "Going to given goal " << std::endl;
+
+
+    g2p(ip,3,path_list[path_list.size()-m-1]->y,path_list[path_list.size()-m-1]->x);
         
-        
-        g2p(ip,3,p[p.size()-m]->x,p[p.size()-m]->y);
 
-        
-
-   }
-       /*g2p(ip,3,1,1);
-        g2p(ip,3,1,2);
-        g2p(ip,3,1,3);
-        g2p(ip,3,1,4);
-*/
- // Repeat   
-
-  std::cout << " Reached Target" << std::endl;
+  }
+  // to reach red region
+  g2p(ip,3,14,1);
+  path_list.clear();
+  std::cout<< "Target Reached " << std::endl;
 
 
 
 
-
-    return 0;
+  return 0;
 }
